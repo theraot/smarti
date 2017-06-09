@@ -92,14 +92,14 @@
     {
         while(1)
         {
-			char result = getch();
+			char result = _getch();
             if (result == 27)
             {
                 continue;
             }
             else if (result == '\0' || result == -32)
             {
-                result = getch();
+                result = _getch();
                 continue;
             }
             else
@@ -113,19 +113,19 @@
     {
         while(1)
         {
-			char result = getch();
+			char result = _getch();
             if (result == 27)
             {
                 continue;
             }
             else if (result == '\0')
             {
-                result = getch();
+                result = _getch();
                 continue;
             }
             else if (result == -32)
             {
-                result = getch();
+                result = _getch();
                 if (result == 72)
                 {
                     return ARROW_UP;
