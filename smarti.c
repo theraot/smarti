@@ -75,8 +75,8 @@
     {
         HANDLE hStdOut;
         COORD coords;
-		coords.X = x;
-		coords.Y = y;
+        coords.X = x;
+        coords.Y = y;
         hStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
         if (hStdOut == INVALID_HANDLE_VALUE)
         {
@@ -410,7 +410,7 @@ int readChar(char * value)
 
 int readInt(int * result)
 {
-	#define LENGTH 12
+    #define LENGTH 12
     char value;
     int position = 0;
     int found_sign = 0;
@@ -474,7 +474,7 @@ int readInt(int * result)
             }break;
         }
     }
-	#undef LENGTH
+    #undef LENGTH
 }
 
 int readString(int length, char * buffer)
