@@ -71,10 +71,12 @@
         }
     }
 
-    void placeCursor(x, y)
+    void placeCursor(int x, int y)
     {
         HANDLE hStdOut;
-        COORD coords = {x, y};
+        COORD coords;
+		coords.X = x;
+		coords.Y = y;
         hStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
         if (hStdOut == INVALID_HANDLE_VALUE)
         {
@@ -88,10 +90,9 @@
 
     char readch()
     {
-        char result;
         while(1)
         {
-            result = getch();
+			char result = getch();
             if (result == 27)
             {
                 continue;
@@ -110,10 +111,9 @@
 
     int readArrow()
     {
-        char result;
         while(1)
         {
-            result = getch();
+			char result = getch();
             if (result == 27)
             {
                 continue;
@@ -410,18 +410,18 @@ int readChar(char * value)
 
 int readInt(int * result)
 {
+	#define LENGTH 12
     char value;
     int position = 0;
     int found_sign = 0;
     int oldresult = 0;
-    int length = 12;
     int digit = 0;
-    char buffer[length];
+    char buffer[LENGTH];
     int overflow;
     (*result) = 0;
     for(;;)
     {
-        switch(readStringChar(length, position, &value))
+        switch(readStringChar(LENGTH, position, &value))
         {
             case 0:
             {
@@ -474,6 +474,7 @@ int readInt(int * result)
             }break;
         }
     }
+	#undef LENGTH
 }
 
 int readString(int length, char * buffer)
