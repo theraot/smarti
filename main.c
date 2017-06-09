@@ -31,7 +31,7 @@ int main ()
     }
 
     printf("[PRECIONE UNA TECLA PARA CONTINUAR]");
-    readch();
+    getChar();
 
     clearTerminal();
     placeCursor(10, 10);

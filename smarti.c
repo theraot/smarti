@@ -9,7 +9,23 @@
 #if _WIN32
     #include <conio.h>
     #include <windows.h>
-    #define __BACKSPACE '\b'
+    #define __BACKSPACE VK_BACK
+    
+    void disableEcho()
+    {
+        HANDLE hStdin = GetStdHandle(STD_INPUT_HANDLE); 
+        DWORD mode = 0;
+        GetConsoleMode(hStdin, &mode);
+        SetConsoleMode(hStdin, mode & (~ENABLE_ECHO_INPUT));
+    }
+
+    void enableEcho()
+    {
+        HANDLE hStdin = GetStdHandle(STD_INPUT_HANDLE); 
+        DWORD mode = 0;
+        GetConsoleMode(hStdin, &mode);
+        SetConsoleMode(hStdin, mode | ENABLE_ECHO_INPUT);
+    }
 
     void clearTerminal()
     {
@@ -88,67 +104,59 @@
         }
     }
 
-    char readch()
-    {
-        while(1)
-        {
-			char result = _getch();
-            if (result == 27)
-            {
-                continue;
-            }
-            else if (result == '\0' || result == -32)
-            {
-                result = _getch();
-                continue;
-            }
-            else
-            {
-                return result;
-            }
-        }
-    }
-
     int readArrow()
     {
-        while(1)
+        HANDLE hStdin = GetStdHandle (STD_INPUT_HANDLE);
+        INPUT_RECORD input;
+        DWORD readCount;
+        CHAR result;
+
+        while(ReadConsoleInputA (hStdin, &input, 1, &readCount))
         {
-			char result = _getch();
-            if (result == 27)
+            if (input.Event.KeyEvent.wVirtualKeyCode == VK_UP)
             {
-                continue;
+                return ARROW_UP;
             }
-            else if (result == '\0')
+            else if (input.Event.KeyEvent.wVirtualKeyCode == VK_LEFT)
             {
-                result = _getch();
-                continue;
+                return ARROW_LEFT;
             }
-            else if (result == -32)
+            else if (input.Event.KeyEvent.wVirtualKeyCode == VK_RIGHT)
             {
-                result = _getch();
-                if (result == 72)
-                {
-                    return ARROW_UP;
-                }
-                else if (result == 75)
-                {
-                    return ARROW_LEFT;
-                }
-                else if (result == 77)
-                {
-                    return ARROW_RIGHT;
-                }
-                if (result == 80)
-                {
-                    return ARROW_DOWN;
-                }
-                continue;
+                return ARROW_RIGHT;
             }
-            else
+            else if (input.Event.KeyEvent.wVirtualKeyCode == VK_DOWN)
             {
-                continue;
+                return ARROW_DOWN;
             }
         }
+        return EOF;
+    }
+
+    char getChar()
+    {
+        HANDLE hStdin = GetStdHandle (STD_INPUT_HANDLE);
+        INPUT_RECORD input;
+        DWORD readCount;
+        CHAR result;
+
+        while(ReadConsoleInputA (hStdin, &input, 1, &readCount))
+        {
+            if
+            (
+                input.EventType == KEY_EVENT
+                && input.Event.KeyEvent.wVirtualKeyCode != VK_SHIFT
+                && input.Event.KeyEvent.wVirtualKeyCode != VK_MENU
+                && input.Event.KeyEvent.wVirtualKeyCode != VK_CONTROL
+            )
+            {
+                if (input.Event.KeyEvent.bKeyDown)
+                {
+                    return (char)input.Event.KeyEvent.uChar.AsciiChar;
+                }
+            }
+        }
+        return EOF;
     }
 
 #elif __linux__
@@ -184,61 +192,6 @@
     void placeCursor(x, y)
     {
         fprintf(stdout, "%c[%d;%df",0x1B,x,y);
-    }
-
-    char readch()
-    {
-        char result;
-        disableEcho();
-        while(1)
-        {
-            fread(&result, 1, 1, stdin);
-            while(1)
-            {
-                if (result == 27)
-                {
-                    fread(&result, 1, 1, stdin);
-                    if (result >= 64 && result <= 95)
-                    {
-                        if (result == '[')
-                        {
-                            while(1)
-                            {
-                                fread(&result, 1, 1, stdin);
-                                if (result >= 64 && result <= 126)
-                                {
-                                    break;
-                                }
-                            }
-                            break;
-                        }
-                        else if (result == 79)
-                        {
-                            fread(&result, 1, 1, stdin);
-                            break;
-                        }
-                        else
-                        {
-                            continue;
-                        }
-                    }
-                    /*else if (result == '#' || result == '(' || result == ')' || result == '/' || (result >= '0' && result <= '6'))
-                    {
-                        fread(&result, 1, 1, stdin);
-                        break;
-                    }*/
-                    else
-                    {
-                        continue;
-                    }
-                }
-                else
-                {
-                    enableEcho();
-                    return result;
-                }
-            }
-        }
     }
 
     int readArrow()
@@ -317,6 +270,62 @@
             }
         }
     }
+
+    char getChar()
+    {
+        char result;
+        disableEcho();
+        while(1)
+        {
+            fread(&result, 1, 1, stdin);
+            while(1)
+            {
+                if (result == 27)
+                {
+                    fread(&result, 1, 1, stdin);
+                    if (result >= 64 && result <= 95)
+                    {
+                        if (result == '[')
+                        {
+                            while(1)
+                            {
+                                fread(&result, 1, 1, stdin);
+                                if (result >= 64 && result <= 126)
+                                {
+                                    break;
+                                }
+                            }
+                            break;
+                        }
+                        else if (result == 79)
+                        {
+                            fread(&result, 1, 1, stdin);
+                            break;
+                        }
+                        else
+                        {
+                            continue;
+                        }
+                    }
+                    /*else if (result == '#' || result == '(' || result == ')' || result == '/' || (result >= '0' && result <= '6'))
+                    {
+                        fread(&result, 1, 1, stdin);
+                        break;
+                    }*/
+                    else
+                    {
+                        continue;
+                    }
+                }
+                else
+                {
+                    enableEcho();
+                    return result;
+                }
+            }
+        }
+    }
+
 #else
     #error UNSUPPORTED PLATFORM
 #endif /* BUILD_PLATFORM */
@@ -330,7 +339,7 @@ int readStringChar(int length, int position, char * value)
 {
     for(;;)
     {
-        (*value) = readch();
+        (*value) = getChar();
         if ((*value) == '\n' || (*value) == '\r')
         {
             return 0;

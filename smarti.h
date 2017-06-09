@@ -6,7 +6,7 @@
 void clearTerminal();
 void placeCursor(int, int);
 
-char readch();
+char getChar();
 int readArrow();
 
 int readChar(char *);
