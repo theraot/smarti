@@ -57,8 +57,8 @@ int main ()
     printf("\n");
 
     printf("\n");
-	
-	printf("Esciba un string (10 char max): ");
+
+    printf("Esciba un string (10 char max): ");
     length = readString(10, valorString);
     printf("El string es: ");
     printf("%s", valorString);
@@ -79,8 +79,8 @@ int main ()
     printf("\n");
 
     printf("\n");
-	
-	printf("Esciba un string (oculto): ");
+
+    printf("Esciba un string (oculto): ");
     length = readStringMask(STR_MAX, valorString, '*');
     printf("El string es: ");
     printf("%s", valorString);
@@ -90,8 +90,8 @@ int main ()
     printf("\n");
 
     printf("\n");
-	
-	printf("Esciba un string (invisible): ");
+
+    printf("Esciba un string (invisible): ");
     length = readStringSilent(STR_MAX, valorString);
     printf("El string es: ");
     printf("%s", valorString);
